@@ -1,0 +1,50 @@
+### Variáveis (altere se necessário)
+@baseUrl = http://localhost:3000
+@contentType = application/json; charset=utf-8
+
+### Health check simples (se você tiver um /health)
+GET {{baseUrl}}/contatos
+Accept: application/json
+
+###
+# LISTAR CONTATOS
+GET {{baseUrl}}/contatos
+Accept: application/json
+
+###
+# CRIAR CONTATO (válido: nome com MÍNIMO DE 2 PALAVRAS, 3+ letras cada)
+POST {{baseUrl}}/contatos
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "nome": "Maria Silva",
+  "telefone": "11999990000"
+}
+
+###
+# CRIAR CONTATO (inválido: para ver validação)
+POST {{baseUrl}}/contatos
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "nome": "Ma",
+  "telefone": ""
+}
+
+###
+# ATUALIZAR (PATCH) CONTATO POR ID (altere o :id após criar um contato)
+@id = 1
+PATCH {{baseUrl}}/contatos/{{id}}
+Content-Type: {{contentType}}
+Accept: application/json
+
+{
+  "telefone": "11911112222"
+}
+
+###
+# EXCLUIR CONTATO POR ID
+DELETE {{baseUrl}}/contatos/{{id}}
+Accept: application/json
