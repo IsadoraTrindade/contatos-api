@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: contatos_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"             # expose locally if you want a GUI to connect
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./infra/mysql/init:/docker-entrypoint-initdb.d
+      - ./infra/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: contatos_api
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "${PORT}:${PORT}"
+    command: ["node", "--watch", "src/server.js"]
+    volumes:
+      - ./:/app:cached            # live-reload dev workflow
+      - /app/node_modules         # keep container modules isolated
+    restart: unless-stopped
+
+volumes:
+  db_data:
